@@ -18,6 +18,13 @@ function _M.execute(conf)
         end
     end
 
+    -- Loads consumers based on X-Master-Api-Key
+    local consumer_id = kong.request.get_header("X-Master-Api-Key")
+    if consumer_id then
+        local consumer = kong.client.load_consumer(consumer_id, false)
+        kong.client.authenticate(consumer, nil)
+    end
+
     local auth_request = _M.new_auth_request(conf.origin_request_headers_to_forward_to_auth, conf.keepalive_timeout)
 
     local res, err = client:request_uri(conf.auth_uri, auth_request)
